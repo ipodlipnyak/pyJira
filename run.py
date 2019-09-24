@@ -3,6 +3,7 @@ from pygments import highlight
 from pygments.lexers import JsonLexer
 from pygments.formatters import TerminalFormatter
 from src.core import Connector
+from PyInquirer import prompt
 
 class JiraCon(Connector):
     def getParentName(self, child):
