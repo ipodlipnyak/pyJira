@@ -2,9 +2,9 @@ import json
 from pygments import highlight
 from pygments.lexers import JsonLexer
 from pygments.formatters import TerminalFormatter
-from src import core 
+from src.core import Connector
 
-class JiraCon(core.Connector):
+class JiraCon(Connector):
     def getParentName(self, child):
         return self.getTaskData(child)['fields']['customfield_10005']
 
