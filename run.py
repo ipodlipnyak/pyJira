@@ -15,6 +15,11 @@ class JiraCon(Connector):
             return self.getTaskData(parent)
         return False 
 
+    #TODO filter possible statuses by current status
+    def getNextStatuses(self, issue_type, issue_status):
+        all_statuses = self.get('rest/api/2/project/RND/statuses')
+        pass
+
     def getTaskData(self, task):
         return self.get('rest/api/2/issue/'+task)
 
@@ -25,4 +30,5 @@ def prettyPrint(parsed_json):
 if __name__ == "__main__" :
     jira = JiraCon()
 
-    prettyPrint(jira.getParentData('RND-8817'))
+    #prettyPrint(jira.getParentData('RND-8817'))
+    prettyPrint(jira.get('rest/api/2/project/RND/statuses'))
