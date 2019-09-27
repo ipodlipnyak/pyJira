@@ -84,7 +84,7 @@ class DataContainer():
     def getUpdated(self):
         result = {}
         for key in self.__updated:
-            result[key] = self.__data[key]
+            result[key] = self[key]
         return result
 
     def getParams(self):
