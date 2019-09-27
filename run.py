@@ -39,6 +39,5 @@ if __name__ == "__main__" :
     prettyPrint(r)
 
     i = Issue(jira, 'RND-8817')
-    i.getParams()
 
     #prettyPrint(jira.get('rest/api/2/project/RND/statuses'))

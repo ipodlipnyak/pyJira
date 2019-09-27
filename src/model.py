@@ -4,11 +4,11 @@ class Issue():
         url = 'rest/api/2/issue/'+name
         self.__data = DataContainer(self.con.get(url))
 
-    def get(self, key):
-        return self.__data.get(key)
+    def __getitem__(self, key):
+        return self.__data[key]
 
-    def set(self, key, value):
-        self.__data.set(key, value)
+    def __setitem__(self, key, value):
+        self.__data[key] = value
         return self
 
     def getParent(self):
@@ -17,12 +17,18 @@ class Issue():
     def getParams(self):
         return self.__data.getParams()
 
+    def test(self):
+        print(self.__data.len())
+        for a in self.__data:
+            print(a)
+
     #TODO PUT /rest/api/2/issue/{issueIdOrKey}
     def save(self):
         #return self
         return self.__data.getUpdated()
 
 class DataContainer():
+    #TODO Need to know the name of parsed data
     def __init__(self, parsed_json):
         self.__keys = []
         self.__data = {}
@@ -30,7 +36,7 @@ class DataContainer():
         self.__first = {}
         self.__last = {}
         self.__i = 0
-        self.__qnt = len(parsed_json)
+        self.__qnt = len(parsed_json['fields'])
         i = 0
 
         for key, value in parsed_json['fields'].items():
@@ -56,21 +62,24 @@ class DataContainer():
         if self.__i == self.__qnt:
             raise StopIteration
         key = self.__keys[self.__i - 1]
-        return self.__data[key]
+        return {'name' : key, 'value' : self[key]}
 
-    def len(self):
-        return self.__qnt
-
-    def get(self, key):
+    def __getitem__(self, key):
+        if key not in self.__data.keys():
+            raise KeyError
         param = self.__data[key]
         return param['new_value'] if key in self.__updated  else param['old_value']
-
-    #TODO FUCK setter had no sense if getter return reference to param
-    def set(self, key, value):
+    
+    def __setitem__(self, key, value):
+        if key not in self.__data.keys():
+            raise KeyError
         param = self.__data[key]
         param['new_value'] = value
         if key not in self.__updated:
             self.__updated.append(key)
+
+    def len(self):
+        return self.__qnt
 
     def getUpdated(self):
         result = {}
