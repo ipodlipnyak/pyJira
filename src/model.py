@@ -7,7 +7,7 @@ class Issue():
         data = self.con.get(url)
         
         #TODO Mhe..
-        self.info = {'id' : data['id'], 'key' : data['key'], 'self' : data['self']}
+        self.meta = {'id' : data['id'], 'key' : data['key'], 'self' : data['self']}
 
         self.__data = DataContainer(data['fields'])
 
@@ -39,7 +39,6 @@ class Issue():
         return self.__data.getUpdated()
 
 class DataContainer():
-    #TODO Need to know the name of parsed data
     def __init__(self, parsed_json):
         self.__keys = []
         self.__data = {}
@@ -79,8 +78,13 @@ class DataContainer():
         if key not in self.__data.keys():
             raise KeyError
         param = self.__data[key]
-        return param['new_value'] if key in self.__updated  else param['old_value']
-    
+        value = param['new_value'] if key in self.__updated  else param['old_value']
+        
+        if type(value) is dict:
+            return value.copy()
+        
+        return value
+
     def __setitem__(self, key, value):
         if key not in self.__data.keys():
             raise KeyError
