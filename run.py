@@ -2,7 +2,7 @@ import json
 from pygments import highlight
 from pygments.lexers import JsonLexer
 from pygments.formatters import TerminalFormatter
-from src.core import Connector
+from src.core import Connector, prettyPrint
 from src.model import Issue
 from PyInquirer import prompt
 
@@ -27,10 +27,6 @@ class JiraCon(Connector):
     # Returns a list of all issue types visible to the user
     def getIssueTypesAll(self):
         return self.get('rest/api/2/issuetype')
-
-def prettyPrint(parsed_json):
-    json_str = json.dumps(parsed_json, indent=4, sort_keys=True, ensure_ascii=False)
-    print(highlight(json_str, JsonLexer(), TerminalFormatter()))
 
 if __name__ == "__main__" :
     jira = JiraCon()

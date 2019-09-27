@@ -1,8 +1,15 @@
+from .core import prettyPrint
+
 class Issue():
     def __init__(self, connector, name):
         self.con = connector
         url = 'rest/api/2/issue/'+name
-        self.__data = DataContainer(self.con.get(url))
+        data = self.con.get(url)
+        
+        #TODO Mhe..
+        self.info = {'id' : data['id'], 'key' : data['key'], 'self' : data['self']}
+
+        self.__data = DataContainer(data['fields'])
 
     def __getitem__(self, key):
         return self.__data[key]
@@ -12,15 +19,19 @@ class Issue():
         return self
 
     def getParent(self):
-        return Issue(self.con, self.get('customfield_10005')) if self.get('customfield_10005') else False
+        return Issue(self.con, self['customfield_10005']) if self['customfield_10005'] else False
 
     def getParams(self):
         return self.__data.getParams()
 
-    def test(self):
-        print(self.__data.len())
-        for a in self.__data:
-            print(a)
+    #pretty print params
+    def print(self, key = False):
+        if key:
+            prettyPrint(self[key])
+            return
+
+        for param in self.__data:
+            prettyPrint(param)
 
     #TODO PUT /rest/api/2/issue/{issueIdOrKey}
     def save(self):
@@ -36,10 +47,10 @@ class DataContainer():
         self.__first = {}
         self.__last = {}
         self.__i = 0
-        self.__qnt = len(parsed_json['fields'])
+        self.__qnt = len(parsed_json)
         i = 0
 
-        for key, value in parsed_json['fields'].items():
+        for key, value in parsed_json.items():
             i += 1
             self.__keys.append(key)
             self.__data[key] = {'old_value' : value, 'new_value' : None}

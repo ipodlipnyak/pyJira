@@ -1,7 +1,14 @@
 import requests
 import json
+from pygments import highlight
+from pygments.lexers import JsonLexer
+from pygments.formatters import TerminalFormatter
 from PyInquirer import prompt
 from os.path import isfile
+
+def prettyPrint(parsed_json):
+    json_str = json.dumps(parsed_json, indent=4, sort_keys=True, ensure_ascii=False)
+    print(highlight(json_str, JsonLexer(), TerminalFormatter()))
 
 class Config:
     def __init__(self):
