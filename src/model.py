@@ -26,10 +26,15 @@ class Issue():
 
     #pretty print params
     def print(self, key = False):
+        if key == 'meta':
+            prettyPrint(self.meta)
+            return
+
         if key:
             prettyPrint(self[key])
             return
 
+        prettyPrint({'name':'meta','value':self.meta})
         for param in self.__data:
             prettyPrint(param)
 
