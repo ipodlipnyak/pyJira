@@ -6,6 +6,8 @@ from src.core import Connector, prettyPrint
 from src.model import Issue
 from PyInquirer import prompt
 
+#TODO interactive select of issue and navigation over it params and action options. Like change status and comments edit
+
 class JiraCon(Connector):
     def getParentName(self, child):
         return self.getTaskData(child)['fields']['customfield_10005']
@@ -31,9 +33,10 @@ class JiraCon(Connector):
 if __name__ == "__main__" :
     jira = JiraCon()
 
-    r = jira.getParentData('RND-8817')
-    prettyPrint(r)
+#    r = jira.getParentData('RND-8817')
+#    prettyPrint(r)
 
-    i = Issue(jira, 'RND-8817')
+    #i = Issue(jira, 'RND-8817')
+    i = Issue(jira, 'RND-8902')
 
     #prettyPrint(jira.get('rest/api/2/project/RND/statuses'))

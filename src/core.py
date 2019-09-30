@@ -79,18 +79,35 @@ class Connector:
             return 'name' in result and result['name'] == self.config.get("username")
         return False
 
-    def post(self, query, payload):
+    def post(self, query, payload, debug = False):
         url = self.config.get('host') + query
         headers = {
                 'Content-type': 'application/json'
                 }
+
+        if debug:
+            prettyPrint({
+                'url' : url,
+                'headers' : headers,
+                'payload' : payload
+                })
+            return
+
         r = requests.post(url, headers=headers,data=payload)
         return json.loads(r.text)
 
-    def get(self, query):
+    def get(self, query, debug = False):
         url = self.config.get('host') + query
         cookies = {
                 "JSESSIONID" : self.config.get('JSESSIONID')
                 }
+        
+        if debug:
+            prettyPrint({
+                'url' : url,
+                'cookies' : cookies
+                })
+            return
+
         r = requests.get(url, cookies=cookies)
         return json.loads(r.text)

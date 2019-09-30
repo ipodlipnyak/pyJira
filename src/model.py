@@ -7,11 +7,19 @@ class Issue():
         data = self.con.get(url)
         
         #TODO Mhe..
-        self.meta = {'id' : data['id'], 'key' : data['key'], 'self' : data['self']}
+        self.meta = {
+                'id' : data['id'], 
+                'key' : data['key'], 
+                'self' : data['self'],
+                }
 
+        self.meta['transitions'] = self.getTransitions()
         self.__data = DataContainer(data['fields'])
 
     def __getitem__(self, key):
+        if key in self.meta:
+            return self.meta[key]
+
         return self.__data[key]
 
     def __setitem__(self, key, value):
@@ -24,12 +32,86 @@ class Issue():
     def getParams(self):
         return self.__data.getParams()
 
+    def getTransitions(self):
+        """
+        Get a list of the transitions possible for this issue by the current user, 
+        along with fields that are required and their types.
+        https://docs.atlassian.com/software/jira/docs/api/REST/8.2.2/#api/2/issue-getTransitions
+        """
+        result = []
+        raw_list = self.con.get('rest/api/2/issue/'+self.meta['key']+'/transitions')
+        return raw_list['transitions']
+
+    def doTransition(self, name, comment = False):
+        """
+        Perform a transition on an issue. 
+        When performing the transition you can update or set other issue fields.
+        https://docs.atlassian.com/software/jira/docs/api/REST/8.2.2/#api/2/issue-doTransition
+        """
+        url = 'rest/api/2/issue/'+self['key']+'/transitions'
+        next_trans = False
+        for trans in self['transitions']:
+            if trans['name'] == name:
+                next_trans = trans
+
+        if not next_trans:
+            return False
+
+        payload = {
+                "transition": {
+                    "id": next_trans['id']
+                    }
+                }
+
+        if comment:
+            payload['update']['comment'] = [
+                    {
+                        "add": {
+                            "body": comment 
+                            }
+                        }
+                    ]
+
+        self.con.post(url, payload, True)
+
+    def getStatus(self, name = False):
+        if name:
+            return self.con.get('rest/api/2/status/'+name)
+
+        status_list_all = self.con.get('rest/api/2/status')
+        result = []
+        for status in status_list_all:
+            result.append(status['name'])
+
+        return result
+
+    def setInwork(self):
+        new_status = self.getStatus('inwork')
+        self['status'] = new_status 
+        self.save()
+
+        parent = self.getParent()
+        if parent:
+            parent['status'] = new_status
+            parent.save()
+
+
+    def getEditMeta(self):
+        """ 
+        Returns the meta data for editing an issue.
+        The fields in the editmeta correspond to the fields in the edit screen for the issue. 
+        Fields not in the screen will not be in the editmeta.
+        https://docs.atlassian.com/software/jira/docs/api/REST/8.2.2/#api/2/issue-getEditIssueMeta 
+
+        :return: obj DataContainer
+        """
+        result = self.con.get('rest/api/2/issue/'+self.meta['key']+'/editmeta')
+        return DataContainer(result['fields'])
+
+
+
     #pretty print params
     def print(self, key = False):
-        if key == 'meta':
-            prettyPrint(self.meta)
-            return
-
         if key:
             prettyPrint(self[key])
             return
@@ -109,6 +191,10 @@ class DataContainer():
 
     def getParams(self):
         return self.__keys
+
+    def toDict(self):
+        return self.__data.copy() 
+
 
 
 
