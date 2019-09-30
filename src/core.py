@@ -84,16 +84,21 @@ class Connector:
         headers = {
                 'Content-type': 'application/json'
                 }
+        cookies = {
+                "JSESSIONID" : self.config.get('JSESSIONID')
+                }
+        data = json.dumps(payload)
 
         if debug:
             prettyPrint({
                 'url' : url,
                 'headers' : headers,
-                'payload' : payload
+                'cookies': cookies,
+                'data' : data
                 })
             return
 
-        r = requests.post(url, headers=headers,data=payload)
+        r = requests.post(url, headers=headers, data=data, cookies=cookies)
         return json.loads(r.text)
 
     def get(self, query, debug = False):

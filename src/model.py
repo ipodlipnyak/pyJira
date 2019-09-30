@@ -74,7 +74,9 @@ class Issue():
                         ]
                     }
 
-        self.con.post(url, payload, True)
+        r = self.con.post(url, payload, True)
+        #r = self.con.post(url, payload)
+        prettyPrint(r)
 
     def getStatus(self, name = False):
         if name:
