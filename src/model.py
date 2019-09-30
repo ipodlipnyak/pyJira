@@ -75,9 +75,9 @@ class Issue():
                         ]
                     }
 
-        #r = self.con.post(url, payload, True)
-        #prettyPrint(r)
-        self.con.post(url, payload)
+        r = self.con.post(url, payload, debug = True)
+        prettyPrint(r)
+        #self.con.post(url, payload)
 
     def getStatus(self, name = False):
         if name:
@@ -131,7 +131,16 @@ class Issue():
         answers = prompt(questions)
 
         if answers['next_transition'] != 'no':
-            self.doTransition(answers['next_transition'])
+            next_transition = answers['next_transition']
+            questions = [
+                    {
+                        'type': 'input',
+                        'name': 'comment',
+                        'message': 'comment'
+                        },
+                    ]
+            comment = prompt(questions)['comment']
+            self.doTransition(next_transition, comment)
 
 
 

@@ -69,8 +69,12 @@ class Connector:
             self.auth()
 
     def auth(self):
-        payload = '{"username" : "'+self.config.get('username')+'", "password" : "'+self.config.get('password')+'"}'
-        result = self.post("rest/auth/1/session",payload)
+        #payload = '{"username" : "'+self.config.get('username')+'", "password" : "'+self.config.get('password')+'"}'
+        payload = {
+                "username" : self.config.get('username'),
+                "password" : self.config.get('password')
+                }
+        result = self.post("rest/auth/1/session",payload, auth = False)
         self.config.set(result['session']['name'], result['session']['value'])
 
     def checkConn(self):
@@ -79,26 +83,30 @@ class Connector:
             return 'name' in result and result['name'] == self.config.get("username")
         return False
 
-    def post(self, query, payload, debug = False):
+    def post(self, query, payload, auth = True,debug = False):
         url = self.config.get('host') + query
         headers = {
                 'Content-type': 'application/json'
                 }
-        cookies = {
-                "JSESSIONID" : self.config.get('JSESSIONID')
-                }
+
         data = json.dumps(payload)
 
         if debug:
             prettyPrint({
                 'url' : url,
                 'headers' : headers,
-                'cookies': cookies,
                 'data' : data
                 })
             return
 
-        r = requests.post(url, headers=headers, data=data, cookies=cookies)
+        if auth:
+            cookies = {
+                    "JSESSIONID" : self.config.get('JSESSIONID')
+                    }
+            r = requests.post(url, headers=headers, data=data, cookies=cookies)
+        else:
+            r = requests.post(url, headers=headers, data=data)
+
         return json.loads(r.text)
 
     def get(self, query, debug = False):

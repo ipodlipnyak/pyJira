@@ -1,3 +1,4 @@
+import requests
 import json
 from pygments import highlight
 from pygments.lexers import JsonLexer
@@ -33,11 +34,6 @@ class JiraCon(Connector):
 if __name__ == "__main__" :
     jira = JiraCon()
 
-#    r = jira.getParentData('RND-8817')
-#    prettyPrint(r)
-
-    #i = Issue(jira, 'RND-8817')
+   #i = Issue(jira, 'RND-8817')
     i = Issue(jira, 'RND-8150')
     i.initPepermenButtler()
-
-    #prettyPrint(jira.get('rest/api/2/project/RND/statuses'))
