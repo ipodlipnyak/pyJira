@@ -64,13 +64,15 @@ class Issue():
                 }
 
         if comment:
-            payload['update']['comment'] = [
-                    {
-                        "add": {
-                            "body": comment 
+            payload['update'] = {
+                    'comment' : [
+                        {
+                            "add": {
+                                "body": comment 
+                                }
                             }
-                        }
-                    ]
+                        ]
+                    }
 
         self.con.post(url, payload, True)
 
