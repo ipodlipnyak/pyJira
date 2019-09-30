@@ -1,4 +1,5 @@
 from .core import prettyPrint
+from PyInquirer import prompt
 
 class Issue():
     def __init__(self, connector, name):
@@ -74,9 +75,9 @@ class Issue():
                         ]
                     }
 
-        r = self.con.post(url, payload, True)
-        #r = self.con.post(url, payload)
-        prettyPrint(r)
+        #r = self.con.post(url, payload, True)
+        #prettyPrint(r)
+        self.con.post(url, payload)
 
     def getStatus(self, name = False):
         if name:
@@ -111,6 +112,26 @@ class Issue():
         """
         result = self.con.get('rest/api/2/issue/'+self.meta['key']+'/editmeta')
         return DataContainer(result['fields'])
+
+    def initPepermenButtler(self):
+
+        transitions = ['no']
+        for trans in self['transitions']:
+            transitions.append(trans['name'])
+
+        questions = [
+            {
+                'type': 'list',
+                'name': 'next_transition',
+                'message': 'Transit from '+self['status']['name'],
+                'choices': transitions
+            },
+        ]
+        
+        answers = prompt(questions)
+
+        if answers['next_transition'] != 'no':
+            self.doTransition(answers['next_transition'])
 
 
 

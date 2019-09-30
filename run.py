@@ -37,6 +37,7 @@ if __name__ == "__main__" :
 #    prettyPrint(r)
 
     #i = Issue(jira, 'RND-8817')
-    i = Issue(jira, 'RND-8902')
+    i = Issue(jira, 'RND-8150')
+    i.initPepermenButtler()
 
     #prettyPrint(jira.get('rest/api/2/project/RND/statuses'))
