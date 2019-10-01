@@ -69,7 +69,6 @@ class Connector:
             self.auth()
 
     def auth(self):
-        #payload = '{"username" : "'+self.config.get('username')+'", "password" : "'+self.config.get('password')+'"}'
         payload = {
                 "username" : self.config.get('username'),
                 "password" : self.config.get('password')
@@ -83,7 +82,7 @@ class Connector:
             return 'name' in result and result['name'] == self.config.get("username")
         return False
 
-    def post(self, query, payload, auth = True,debug = False):
+    def post(self, query, payload, auth = True, debug = False):
         url = self.config.get('host') + query
         headers = {
                 'Content-type': 'application/json'
@@ -95,7 +94,7 @@ class Connector:
             prettyPrint({
                 'url' : url,
                 'headers' : headers,
-                'data' : data
+                'data' : payload
                 })
             return
 

@@ -1,4 +1,3 @@
-import requests
 import json
 from pygments import highlight
 from pygments.lexers import JsonLexer
@@ -35,5 +34,5 @@ if __name__ == "__main__" :
     jira = JiraCon()
 
    #i = Issue(jira, 'RND-8817')
-    i = Issue(jira, 'RND-8150')
-    i.initPepermenButtler()
+    i = Issue(jira, 'RND-8972')
+    i.verboseTransition()

@@ -1,7 +1,24 @@
 from .core import prettyPrint
 from PyInquirer import prompt
 
+class PeppermintButler():
+    """
+    #TODO go through: 
+    ask for task or find existing, 
+    check if there need for status transition
+    ask for comments
+    """
+    def __init__(self):
+        pass
+
 class Issue():
+    def __new__(cls, connector, name):
+        r = connector.get('rest/api/2/issue/'+name)
+        if 'errorMessages' in r and 'ЗАПРОС НЕ СУЩЕСТВУЕТ' in r['errorMessages']:
+            return None
+
+        return super(Issue, cls).__new__(cls)
+
     def __init__(self, connector, name):
         self.con = connector
         url = 'rest/api/2/issue/'+name
@@ -75,9 +92,9 @@ class Issue():
                         ]
                     }
 
-        r = self.con.post(url, payload, debug = True)
-        prettyPrint(r)
-        #self.con.post(url, payload)
+        #r = self.con.post(url, payload, debug = True)
+        #prettyPrint(r)
+        self.con.post(url, payload)
 
     def getStatus(self, name = False):
         if name:
@@ -113,7 +130,7 @@ class Issue():
         result = self.con.get('rest/api/2/issue/'+self.meta['key']+'/editmeta')
         return DataContainer(result['fields'])
 
-    def initPepermenButtler(self):
+    def verboseTransition(self):
 
         transitions = ['no']
         for trans in self['transitions']:
