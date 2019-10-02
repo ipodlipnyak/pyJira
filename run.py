@@ -3,7 +3,7 @@ from pygments import highlight
 from pygments.lexers import JsonLexer
 from pygments.formatters import TerminalFormatter
 from src.core import Connector, prettyPrint
-from src.model import Issue
+from src.model import Issue, PeppermintButler
 from PyInquirer import prompt
 
 #TODO interactive select of issue and navigation over it params and action options. Like change status and comments edit
@@ -35,5 +35,7 @@ if __name__ == "__main__" :
 
     #i = Issue(jira, 'RND-8817')
     #i = Issue(jira, 'RND-8972')
-    i = Issue(jira, 'RND-7019')
-    i.verboseTransition()
+    #i = Issue(jira, 'RND-7019')
+    #i.verboseTransition()
+    butler = PeppermintButler(jira)
+    i = butler.giveMeTask()

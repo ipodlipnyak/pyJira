@@ -5,6 +5,7 @@ from pygments.lexers import JsonLexer
 from pygments.formatters import TerminalFormatter
 from PyInquirer import prompt
 from os.path import isfile
+from urllib.parse import urlencode, urlparse
 
 def prettyPrint(parsed_json):
     json_str = json.dumps(parsed_json, indent=4, sort_keys=True, ensure_ascii=False)
@@ -108,7 +109,7 @@ class Connector:
 
         return None if r.status_code == 204 else json.loads(r.text)
 
-    def get(self, query, debug = False):
+    def get(self, query, payload = False, debug = False):
         url = self.config.get('host') + query
         cookies = {
                 "JSESSIONID" : self.config.get('JSESSIONID')
@@ -121,6 +122,10 @@ class Connector:
                 })
             return
 
-        r = requests.get(url, cookies=cookies)
+        if payload:
+            #r = requests.get(url, cookies=cookies, params = urlencode(params))
+            r = requests.get(url, cookies=cookies, params=payload)
+        else:
+            r = requests.get(url, cookies=cookies)
 
         return None if r.status_code == 204 else json.loads(r.text)

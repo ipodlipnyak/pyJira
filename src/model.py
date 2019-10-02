@@ -8,8 +8,72 @@ class PeppermintButler():
     check if there need for status transition,
     ask for comments
     """
-    def __init__(self):
-        pass
+
+    STATUSES = {
+            "inwork" : "3",
+            "done" : "5",
+            "To do" : "10000",
+            "Finished" : "10001",
+            "Бэклог" : "10100",
+            "Code-review" : "10300"
+            }
+
+    def __init__(self, connector):
+        self.con = connector
+
+    def searchIssues(self, jql):
+        """ 
+        jql search
+        https://docs.atlassian.com/software/jira/docs/api/REST/8.2.2/#api/2/search-search
+        """
+        url = 'rest/api/2/search'
+        payload = {
+                    "jql": jql, 
+                    "startAt": 0,
+                    "maxResults": 5,
+                }
+        return self.con.post(url, payload)
+
+    def giveMeTask(self):
+        task = None
+        while not task:
+            task_name = self.askForTask()
+            if task_name == 'none' or not task_name:
+                return
+            task = Issue(self.con, task_name)
+            if not task:
+                print('not a task\r')
+        return task
+
+    def askForTask(self):
+        tasks_list = ['none']
+
+        status_list = ','.join([
+                self.STATUSES['inwork'],
+                self.STATUSES['To do'],
+                self.STATUSES['Code-review']
+                ])
+
+        jql = "project = RND and assignee=currentUser() and status in ("+status_list+")"
+        for task in self.searchIssues(jql)['issues']:
+            tasks_list.append(task['key'])
+
+        questions = [
+                {
+                    'type': 'list',
+                    'name': 'task_name',
+                    'message': 'select task',
+                    'choices': tasks_list
+                    },
+                {
+                    'type': 'input',
+                    'name': 'task_name',
+                    'message': 'type the name',
+                    'when': lambda answers: answers.get('task_name', 'none')
+                    }
+                ]
+        return prompt(questions)['task_name']
+
 
 class Issue():
     def __new__(cls, connector, name):
