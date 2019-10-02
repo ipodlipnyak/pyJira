@@ -34,6 +34,13 @@ class PeppermintButler():
                 }
         return self.con.post(url, payload)
 
+    def checkParent(self, child):
+        parent = child.getParent()
+        if parent and parent['status']['id'] != child['status']['id']:
+            print('Parent issue '+parent['key']+' have different status')
+            parent.verboseTransition()
+
+    #TODO when whould i check parent if i transit task to new status?
     def giveMeTask(self):
         task = None
         while not task:
@@ -43,15 +50,18 @@ class PeppermintButler():
             task = Issue(self.con, task_name)
             if not task:
                 print('not a task\r')
+
+        self.checkParent(task)
         return task
 
     def askForTask(self):
         tasks_list = ['none']
 
         status_list = ','.join([
-                self.STATUSES['inwork'],
-                self.STATUSES['To do'],
-                self.STATUSES['Code-review']
+                #self.STATUSES['inwork'],
+                #self.STATUSES['To do'],
+                #self.STATUSES['Code-review'],
+                self.STATUSES['done'],
                 ])
 
         jql = "project = RND and assignee=currentUser() and status in ("+status_list+")"
@@ -69,7 +79,7 @@ class PeppermintButler():
                     'type': 'input',
                     'name': 'task_name',
                     'message': 'type the name',
-                    'when': lambda answers: answers.get('task_name', 'none')
+                    'when': lambda answers: answers['task_name'] == 'none'
                     }
                 ]
         return prompt(questions)['task_name']
@@ -108,8 +118,19 @@ class Issue():
         self.__data[key] = value
         return self
 
+    def sync(self):
+        """
+        sync data with server
+        """
+        url = 'rest/api/2/issue/'+self['key']
+        try:
+            data = self.con.get(url)
+            self.__data = DataContainer(data['fields'])
+        except Exception:
+            print("Can't sync")
+
     def getParent(self):
-        return Issue(self.con, self['customfield_10005']) if self['customfield_10005'] else False
+        return Issue(self.con, self['customfield_10005']) if self['customfield_10005'] else None 
 
     def getParams(self):
         return self.__data.getParams()
@@ -159,6 +180,7 @@ class Issue():
         #r = self.con.post(url, payload, debug = True)
         #prettyPrint(r)
         self.con.post(url, payload)
+        self.sync()
 
     def getStatus(self, name = False):
         if name:
