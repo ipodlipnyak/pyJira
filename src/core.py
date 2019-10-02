@@ -106,7 +106,7 @@ class Connector:
         else:
             r = requests.post(url, headers=headers, data=data)
 
-        return json.loads(r.text)
+        return None if r.status_code == 204 else json.loads(r.text)
 
     def get(self, query, debug = False):
         url = self.config.get('host') + query
@@ -122,4 +122,5 @@ class Connector:
             return
 
         r = requests.get(url, cookies=cookies)
-        return json.loads(r.text)
+
+        return None if r.status_code == 204 else json.loads(r.text)

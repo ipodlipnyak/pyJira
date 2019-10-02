@@ -5,7 +5,7 @@ class PeppermintButler():
     """
     #TODO go through: 
     ask for task or find existing, 
-    check if there need for status transition
+    check if there need for status transition,
     ask for comments
     """
     def __init__(self):

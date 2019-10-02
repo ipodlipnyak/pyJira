@@ -33,6 +33,7 @@ class JiraCon(Connector):
 if __name__ == "__main__" :
     jira = JiraCon()
 
-   #i = Issue(jira, 'RND-8817')
-    i = Issue(jira, 'RND-8972')
+    #i = Issue(jira, 'RND-8817')
+    #i = Issue(jira, 'RND-8972')
+    i = Issue(jira, 'RND-7019')
     i.verboseTransition()
