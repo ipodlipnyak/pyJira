@@ -50,6 +50,9 @@ class Config:
                 #TODO ugly
                 self.set(question['name'],answers[question['name']])
 
+        if not self.get('statuses_groups'):
+            self.set('statuses_groups', {"inwork":[3],"finished":[5]})
+
     def get(self, key):
         return self._config[key] if key in self._config else False
 
