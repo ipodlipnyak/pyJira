@@ -15,7 +15,8 @@ class PeppermintButler():
             "To do" : "10000",
             "Finished" : "10001",
             "Бэклог" : "10100",
-            "Code-review" : "10300"
+            "Code-review" : "10300",
+            "Agreed" : "10469"
             }
 
     def __init__(self, connector):
@@ -45,23 +46,28 @@ class PeppermintButler():
         task = None
         while not task:
             task_name = self.askForTask()
-            if task_name == 'none' or not task_name:
+            if task_name == 'none':
                 return
+
+            if not task_name:
+                continue
+
             task = Issue(self.con, task_name)
             if not task:
-                print('not a task\r')
+                print('not a task')
 
         self.checkParent(task)
         return task
 
     def askForTask(self):
-        tasks_list = ['none']
+        tasks_list = ['none','custom']
 
         status_list = ','.join([
-                #self.STATUSES['inwork'],
-                #self.STATUSES['To do'],
+                self.STATUSES['inwork'],
+                self.STATUSES['To do'],
+                self.STATUSES['Agreed'],
                 #self.STATUSES['Code-review'],
-                self.STATUSES['done'],
+                #self.STATUSES['done'],
                 ])
 
         jql = "project = RND and assignee=currentUser() and status in ("+status_list+")"
@@ -79,7 +85,7 @@ class PeppermintButler():
                     'type': 'input',
                     'name': 'task_name',
                     'message': 'type the name',
-                    'when': lambda answers: answers['task_name'] == 'none'
+                    'when': lambda answers: answers['task_name'] == 'custom'
                     }
                 ]
         return prompt(questions)['task_name']
@@ -126,6 +132,7 @@ class Issue():
         try:
             data = self.con.get(url)
             self.__data = DataContainer(data['fields'])
+            self.meta['transitions'] = self.getTransitions()
         except Exception:
             print("Can't sync")
 
