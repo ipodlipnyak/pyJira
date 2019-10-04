@@ -76,8 +76,9 @@ class PeppermintButler():
     def askForTask(self, status_list = [3,5]):
         tasks_list = ['none','custom']
         statuses_str = ','.join(str(e) for e in status_list)
+        project = self.config.get("project")
 
-        jql = "project = RND and assignee=currentUser() and status in ("+ statuses_str +")"
+        jql = "project = "+ project +" and assignee=currentUser() and status in ("+ statuses_str +")"
         for task in self.searchIssues(jql)['issues']:
             tasks_list.append(task['key'])
 

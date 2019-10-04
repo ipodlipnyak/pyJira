@@ -41,6 +41,11 @@ class Config:
                 'type': 'password',
                 'name': 'password',
                 'message': 'What\'s your password',
+            },
+            {
+                'type': 'input',
+                'name': 'project',
+                'message': 'What\'s your project name',
             }
         ]
 
