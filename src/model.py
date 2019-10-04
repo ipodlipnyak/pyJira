@@ -1,4 +1,4 @@
-from .core import prettyPrint
+from .core import prettyPrint, Config
 from PyInquirer import prompt
 
 class PeppermintButler():
@@ -21,6 +21,8 @@ class PeppermintButler():
 
     def __init__(self, connector):
         self.con = connector
+        self.config = Config()
+        self.statuses_groups = DataContainer(self.config.get("statuses_groups"))
 
     def searchIssues(self, jql):
         """ 
@@ -45,9 +47,13 @@ class PeppermintButler():
     def giveMeTask(self):
         task = None
         while not task:
-            task_name = self.askForTask()
-            if task_name == 'none':
+            group = self.askForTaskGroup()
+            if not group:
                 return
+
+            task_name = self.askForTask(self.statuses_groups[group])
+            if task_name == 'none':
+                continue 
 
             if not task_name:
                 continue
@@ -59,18 +65,25 @@ class PeppermintButler():
         self.checkParent(task)
         return task
 
-    def askForTask(self):
+    def askForTaskGroup(self):
+        options = ['none'] + self.statuses_groups.getKeys()
+        questions = [
+                {
+                    'type': 'list',
+                    'name': 'group',
+                    'message': 'select group',
+                    'choices': options 
+                    }
+                ]
+        group = prompt(questions)['group']
+        return None if group == 'none' else group
+
+
+    def askForTask(self, status_list = [3,5]):
         tasks_list = ['none','custom']
+        statuses_str = ','.join(str(e) for e in status_list)
 
-        status_list = ','.join([
-                self.STATUSES['inwork'],
-                self.STATUSES['To do'],
-                self.STATUSES['Agreed'],
-                #self.STATUSES['Code-review'],
-                #self.STATUSES['done'],
-                ])
-
-        jql = "project = RND and assignee=currentUser() and status in ("+status_list+")"
+        jql = "project = RND and assignee=currentUser() and status in ("+ statuses_str +")"
         for task in self.searchIssues(jql)['issues']:
             tasks_list.append(task['key'])
 
@@ -140,7 +153,7 @@ class Issue():
         return Issue(self.con, self['customfield_10005']) if self['customfield_10005'] else None 
 
     def getParams(self):
-        return self.__data.getParams()
+        return self.__data.getKeys()
 
     def getTransitions(self):
         """
@@ -333,7 +346,7 @@ class DataContainer():
             result[key] = self[key]
         return result
 
-    def getParams(self):
+    def getKeys(self):
         return self.__keys
 
     def toDict(self):
