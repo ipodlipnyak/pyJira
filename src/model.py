@@ -37,12 +37,6 @@ class PeppermintButler():
                 }
         return self.con.post(url, payload)
 
-    def checkParent(self, child):
-        parent = child.getParent()
-        if parent and parent['status']['id'] != child['status']['id']:
-            print('Parent issue '+parent['key']+' have different status')
-            parent.verboseTransition()
-
     #TODO when whould i check parent if i transit task to new status?
     def giveMeTask(self):
         task = None
@@ -62,7 +56,7 @@ class PeppermintButler():
             if not task:
                 print('not a task')
 
-        self.checkParent(task)
+        task.verboseTransition()
         return task
 
     def askForTaskGroup(self):
@@ -151,6 +145,12 @@ class Issue():
 
     def getParent(self):
         return Issue(self.con, self['customfield_10005']) if self['customfield_10005'] else None 
+    
+    def checkParent(self):
+        parent = self.getParent()
+        if parent and parent['status']['id'] != self['status']['id']:
+            print('Parent issue '+parent['key']+' have different status')
+            parent.verboseTransition()
 
     def getParams(self):
         return self.__data.getKeys()
@@ -264,6 +264,7 @@ class Issue():
                     ]
             comment = prompt(questions)['comment']
             self.doTransition(next_transition, comment)
+            self.checkParent()
 
 
 
