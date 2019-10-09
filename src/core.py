@@ -57,6 +57,10 @@ class Config:
 
         if not self.get('statuses_groups'):
             self.set('statuses_groups', {"inwork":[3],"finished":[5]})
+       
+        # Automatically transit status of issue from Agreed to Inwork
+        if not self.get('autotransitions'):
+            self.set('autotransitions', {"Agreed": "Inwork"})
 
     def get(self, key):
         return self._config[key] if key in self._config else False

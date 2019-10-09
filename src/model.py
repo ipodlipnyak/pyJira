@@ -58,12 +58,8 @@ class PeppermintButler():
 
         task.verboseTransition()
 
-        # switch automatically from Agreed to Inwork 
-        if task['status']['name'] == 'Agreed':
-            task.doTransition('В работу')
-            task.checkParent()
-
         return task
+
 
     def askForTaskGroup(self):
         options = ['none'] + self.statuses_groups.getKeys()
@@ -115,6 +111,7 @@ class Issue():
 
     def __init__(self, connector, name):
         self.con = connector
+        self.config = Config()
         url = 'rest/api/2/issue/'+name
         data = self.con.get(url)
         
@@ -149,6 +146,12 @@ class Issue():
             self.meta['transitions'] = self.getTransitions()
         except Exception:
             print("Can't sync")
+
+    def autoTransition(self):
+        # By default transit status automatically from Agreed to Inwork
+        if self['status']['name'] in self.config.get('autotransitions'):
+            self.doTransition(self.config.get('autotransitions')[self['status']['name']])
+            self.checkParent()
 
     def getParent(self):
         return Issue(self.con, self['customfield_10005']) if self['customfield_10005'] else None 
@@ -208,6 +211,7 @@ class Issue():
         #prettyPrint(r)
         self.con.post(url, payload)
         self.sync()
+        self.autoTransition()
 
     def addComment(self, msg):
         """
