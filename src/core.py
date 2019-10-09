@@ -115,7 +115,14 @@ class Connector:
         else:
             r = requests.post(url, headers=headers, data=data)
 
-        return None if r.status_code == 204 else json.loads(r.text)
+        try:
+            result = None if r.status_code == 204 else json.loads(r.text)
+        except ValueError:
+            print(r)
+            print(r.text)
+            return
+
+        return result
 
     def get(self, query, payload = False, debug = False):
         url = self.config.get('host') + query
@@ -136,4 +143,11 @@ class Connector:
         else:
             r = requests.get(url, cookies=cookies)
 
-        return None if r.status_code == 204 else json.loads(r.text)
+        try:
+            result = None if r.status_code == 204 else json.loads(r.text)
+        except ValueError:
+            print(r)
+            print(r.text)
+            return
+
+        return result

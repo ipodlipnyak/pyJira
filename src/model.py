@@ -57,6 +57,12 @@ class PeppermintButler():
                 print('not a task')
 
         task.verboseTransition()
+
+        # switch automatically from Agreed to Inwork 
+        if task['status']['name'] == 'Agreed':
+            task.doTransition('В работу')
+            task.checkParent()
+
         return task
 
     def askForTaskGroup(self):
@@ -203,6 +209,18 @@ class Issue():
         self.con.post(url, payload)
         self.sync()
 
+    def addComment(self, msg):
+        """
+        Adds a new comment to an issue
+        https://docs.atlassian.com/software/jira/docs/api/REST/8.2.2/#api/2/issue-addComment
+        """
+        url = 'rest/api/2/issue/'+ self['key'] +'/comment'
+        payload = {
+                "body" : msg
+                }
+        r = self.con.post(url, payload)
+        self.sync()
+
     def getStatus(self, name = False):
         if name:
             return self.con.get('rest/api/2/status/'+name)
@@ -343,6 +361,9 @@ class DataContainer():
         return self.__qnt
 
     def getUpdated(self):
+        """
+        return params which had been chanched
+        """
         result = {}
         for key in self.__updated:
             result[key] = self[key]
@@ -352,6 +373,9 @@ class DataContainer():
         return self.__keys
 
     def toDict(self):
+        """
+        return dictionary
+        """
         return self.__data.copy() 
 
 
