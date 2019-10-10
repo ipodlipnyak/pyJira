@@ -158,7 +158,7 @@ class Issue():
     
     def checkParent(self):
         parent = self.getParent()
-        if parent and parent['status']['id'] != self['status']['id']:
+        if parent and parent['status']['statusCategory']['id'] != self['status']['statusCategory']['id']:
             print('Parent issue '+parent['key']+' have different status')
             parent.verboseTransition()
 
