@@ -17,7 +17,7 @@ class Config:
 
         if not isfile(self._file_name):
             config_f = open(self._file_name,'w+')
-            json.dump({}, config_f, sort_keys=True, indent=2)
+            json.dump({}, config_f, sort_keys=True, indent=4)
             config_f.close()
 
         config_f = open(self._file_name,'r')
@@ -72,7 +72,7 @@ class Config:
     def refreshFile(self):
         config_f = open(self._file_name,'w', encoding='utf-8')
         config_f.truncate()
-        json.dump(self._config, config_f, sort_keys=True, indent=2, ensure_ascii=False)
+        json.dump(self._config, config_f, sort_keys=True, indent=4, ensure_ascii=False)
         config_f.close()
 
 class Connector:
