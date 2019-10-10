@@ -70,9 +70,9 @@ class Config:
         self.refreshFile()
 
     def refreshFile(self):
-        config_f = open(self._file_name,'w')
+        config_f = open(self._file_name,'w', encoding='utf-8')
         config_f.truncate()
-        json.dump(self._config, config_f, sort_keys=True, indent=2)
+        json.dump(self._config, config_f, sort_keys=True, indent=2, ensure_ascii=False)
         config_f.close()
 
 class Connector:
