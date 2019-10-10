@@ -237,11 +237,12 @@ class Issue():
         """
         url = 'rest/api/2/issue/'+ self['key'] +'/worklog'
 
-        if not time_started:
-            time_started = datetime.now(timezone.utc) - timedelta(seconds=time_spent_seconds)
+        # TODO need to parse '2h 30m' into timedelta object
+        #if not time_started:
+        #    time_started = datetime.now(timezone.utc) - timedelta(seconds=time_spent_seconds)
 
         payload = {
-                "started" : time_started.isoformat(timespec = 'milliseconds'),
+                #"started" : time_started.isoformat(timespec = 'milliseconds'),
                 "timeSpent" : time_spent
                 }
 
