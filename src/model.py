@@ -1,5 +1,6 @@
 from .core import prettyPrint, Config
 from PyInquirer import prompt
+from datetime import datetime, timezone, timedelta
 
 class PeppermintButler():
     """
@@ -234,10 +235,10 @@ class Issue():
         url = '/rest/api/2/issue/'+ self['key'] +'/worklog'
 
         if not time_started:
-            time_started = datetime.datetime.now() - datetime.timedelta(seconds=time_spent_seconds)
+            time_started = datetime.now(timezone.utc) - timedelta(seconds=time_spent_seconds)
 
         payload = {
-                "started" : time_started,
+                "started" : time_started.isoformat(timespec = 'milliseconds'),
                 "timeSpentSeconds" : time_spent_seconds
                 }
 
