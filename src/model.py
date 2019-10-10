@@ -225,21 +225,24 @@ class Issue():
                 }
         self.con.post(url, payload)
         self.sync()
-
-    def addWorklog(self, time_spent_seconds, time_started = False, comment = False):
+    
+    def addWorklog(self, time_spent, time_started = False, comment = False):
         """
+        time_spent - for example '2h 30m'
+        time_started - datetime object
+
         Adds a new worklog entry to an issue.
         I.e. the time that had been spended while working on an issue
         https://docs.atlassian.com/software/jira/docs/api/REST/8.2.2/#api/2/issue-addWorklog
         """
-        url = '/rest/api/2/issue/'+ self['key'] +'/worklog'
+        url = 'rest/api/2/issue/'+ self['key'] +'/worklog'
 
         if not time_started:
             time_started = datetime.now(timezone.utc) - timedelta(seconds=time_spent_seconds)
 
         payload = {
                 "started" : time_started.isoformat(timespec = 'milliseconds'),
-                "timeSpentSeconds" : time_spent_seconds
+                "timeSpent" : time_spent
                 }
 
         if comment:
