@@ -222,7 +222,29 @@ class Issue():
         payload = {
                 "body" : msg
                 }
-        r = self.con.post(url, payload)
+        self.con.post(url, payload)
+        self.sync()
+
+    def addWorklog(self, time_spent_seconds, time_started = False, comment = False):
+        """
+        Adds a new worklog entry to an issue.
+        I.e. the time that had been spended while working on an issue
+        https://docs.atlassian.com/software/jira/docs/api/REST/8.2.2/#api/2/issue-addWorklog
+        """
+        url = '/rest/api/2/issue/'+ self['key'] +'/worklog'
+
+        if not time_started:
+            time_started = datetime.datetime.now() - datetime.timedelta(seconds=time_spent_seconds)
+
+        payload = {
+                "started" : time_started,
+                "timeSpentSeconds" : time_spent_seconds
+                }
+
+        if comment:
+            payload['comment'] = comment
+
+        self.con.post(url, payload)
         self.sync()
 
     def getStatus(self, name = False):
