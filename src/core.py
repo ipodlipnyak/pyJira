@@ -1,15 +1,32 @@
 import requests
 import json
+import re
 from pygments import highlight
 from pygments.lexers import JsonLexer
 from pygments.formatters import TerminalFormatter
 from PyInquirer import prompt
 from os.path import isfile
 from urllib.parse import urlencode, urlparse
+from datetime import timedelta
 
 def prettyPrint(parsed_json):
     json_str = json.dumps(parsed_json, indent=4, sort_keys=True, ensure_ascii=False)
     print(highlight(json_str, JsonLexer(), TerminalFormatter()))
+
+def parseTime(time_str):
+    """
+    Parse a time string e.g. (2h 13m) into a timedelta object.
+
+    https://stackoverflow.com/a/51916936/851699
+
+    :param time_str: A string identifying a duration.  (eg. 2h 13m)
+    :return datetime.timedelta: A datetime.timedelta object
+    """
+    regex = re.compile(r'^((?P<days>[\.\d]+?)d)?((?P<hours>[\.\d]+?)h)?\s*((?P<minutes>[\.\d]+?)m)?\s*((?P<seconds>[\.\d]+?)s)?$')
+    parts = regex.match(time_str)
+    assert parts is not None, "Could not parse any time information from '{}'.  Examples of valid strings: '8h', '2d 8h 5m 20s', '2m4s'".format(time_str)
+    time_params = {name: float(param) for name, param in parts.groupdict().items() if param}
+    return timedelta(**time_params)
 
 class Config:
     def __init__(self):
