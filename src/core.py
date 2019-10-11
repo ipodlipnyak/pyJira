@@ -143,6 +143,12 @@ class Connector:
             print(r.text)
             return
 
+        if r.status_code >= 400:
+            print(r)
+            prettyPrint(r.text)
+            if payload:
+                prettyPrint(payload)
+
         return result
 
     def get(self, query, payload = False, debug = False):
@@ -170,5 +176,11 @@ class Connector:
             print(r)
             print(r.text)
             return
+        
+        if r.status_code >= 400:
+            print(r)
+            prettyPrint(r.text)
+            if payload:
+                prettyPrint(payload)
 
         return result

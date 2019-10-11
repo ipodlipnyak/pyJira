@@ -1,4 +1,5 @@
-from .core import prettyPrint, Config
+import re
+from .core import prettyPrint, Config, parseTime
 from PyInquirer import prompt
 from datetime import datetime, timezone, timedelta
 
@@ -237,12 +238,11 @@ class Issue():
         """
         url = 'rest/api/2/issue/'+ self['key'] +'/worklog'
 
-        # TODO need to parse '2h 30m' into timedelta object
-        #if not time_started:
-        #    time_started = datetime.now(timezone.utc) - timedelta(seconds=time_spent_seconds)
+        if not time_started:
+            time_started = datetime.now(timezone.utc) - parseTime(time_spent)
 
         payload = {
-                #"started" : time_started.isoformat(timespec = 'milliseconds'),
+                "started" : re.sub(r':(..)$', r'\1', time_started.isoformat(timespec = 'milliseconds')),
                 "timeSpent" : time_spent
                 }
 
