@@ -29,9 +29,45 @@ class PeppermintButler():
 
     def showKanban(self):
         """
+        render kanban
         https://beautifultable.readthedocs.io/en/latest/quickstart.html
         """
         table = BeautifulTable()
+        table.set_style(BeautifulTable.STYLE_COMPACT)
+        project = self.config.get("project")
+
+        rows_qnt = 0
+
+        groups_list = {}
+        for group in self.statuses_groups.getKeys():
+            groups_list[group] = []
+
+        for group in self.statuses_groups.getKeys():
+            status_list = self.statuses_groups[group]
+            statuses_str = ','.join(str(e) for e in status_list)
+            jql = "project = "+ project +" and assignee=currentUser() and status in ("+ statuses_str +")"
+            tasks_list = []
+            for task in self.searchIssues(jql)['issues']:
+                tasks_list.append(task['key'])
+
+            groups_list[group] = tasks_list
+            if len(tasks_list) > rows_qnt:
+                rows_qnt = len(tasks_list)
+
+        for index, group in enumerate(self.statuses_groups.getKeys()):
+            tasks_list = groups_list[group]
+            rows = []
+            r = 0
+            while r <= rows_qnt:
+                task = tasks_list[r] if r < len(tasks_list) else ''
+                rows.append(task)
+                r += 1
+            
+            table.insert_column(index, group, rows)
+
+        print(table)
+
+
 
     def searchIssues(self, jql):
         """ 
