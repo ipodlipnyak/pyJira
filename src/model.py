@@ -2,6 +2,7 @@ import re
 from .core import prettyPrint, Config, parseTime
 from PyInquirer import prompt
 from datetime import datetime, timezone, timedelta
+from beautifultable import BeautifulTable
 
 class PeppermintButler():
     """
@@ -25,6 +26,12 @@ class PeppermintButler():
         self.con = connector
         self.config = Config()
         self.statuses_groups = DataContainer(self.config.get("statuses_groups"))
+
+    def showKanban(self):
+        """
+        https://beautifultable.readthedocs.io/en/latest/quickstart.html
+        """
+        table = BeautifulTable()
 
     def searchIssues(self, jql):
         """ 
@@ -229,8 +236,8 @@ class Issue():
     
     def addWorklog(self, time_spent, time_started = False, comment = False):
         """
-        time_spent - for example '2h 30m'
-        time_started - datetime object
+        :time_spent: for example '2h 30m'
+        :time_started: datetime object
 
         Adds a new worklog entry to an issue.
         I.e. the time that had been spended while working on an issue
@@ -252,39 +259,40 @@ class Issue():
         self.con.post(url, payload)
         self.sync()
 
-    def getStatus(self, name = False):
-        if name:
-            return self.con.get('rest/api/2/status/'+name)
-
-        status_list_all = self.con.get('rest/api/2/status')
-        result = []
-        for status in status_list_all:
-            result.append(status['name'])
-
-        return result
-
-    def setInwork(self):
-        new_status = self.getStatus('inwork')
-        self['status'] = new_status 
-        self.save()
-
-        parent = self.getParent()
-        if parent:
-            parent['status'] = new_status
-            parent.save()
-
-
-    def getEditMeta(self):
-        """ 
-        Returns the meta data for editing an issue.
-        The fields in the editmeta correspond to the fields in the edit screen for the issue. 
-        Fields not in the screen will not be in the editmeta.
-        https://docs.atlassian.com/software/jira/docs/api/REST/8.2.2/#api/2/issue-getEditIssueMeta 
-
-        :return: obj DataContainer
-        """
-        result = self.con.get('rest/api/2/issue/'+self.meta['key']+'/editmeta')
-        return DataContainer(result['fields'])
+# TODO remove this trash
+#    def getStatus(self, name = False):
+#        if name:
+#            return self.con.get('rest/api/2/status/'+name)
+#
+#        status_list_all = self.con.get('rest/api/2/status')
+#        result = []
+#        for status in status_list_all:
+#            result.append(status['name'])
+#
+#        return result
+#
+#    def setInwork(self):
+#        new_status = self.getStatus('inwork')
+#        self['status'] = new_status 
+#        self.save()
+#
+#        parent = self.getParent()
+#        if parent:
+#            parent['status'] = new_status
+#            parent.save()
+#
+#
+#    def getEditMeta(self):
+#        """ 
+#        Returns the meta data for editing an issue.
+#        The fields in the editmeta correspond to the fields in the edit screen for the issue. 
+#        Fields not in the screen will not be in the editmeta.
+#        https://docs.atlassian.com/software/jira/docs/api/REST/8.2.2/#api/2/issue-getEditIssueMeta 
+#
+#        :return: obj DataContainer
+#        """
+#        result = self.con.get('rest/api/2/issue/'+self.meta['key']+'/editmeta')
+#        return DataContainer(result['fields'])
 
     def verboseTransition(self):
 
