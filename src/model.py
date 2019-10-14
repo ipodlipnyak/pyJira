@@ -3,6 +3,7 @@ from .core import prettyPrint, Config, parseTime
 from PyInquirer import prompt
 from datetime import datetime, timezone, timedelta
 from beautifultable import BeautifulTable
+from termcolor import colored, COLORS
 
 class PeppermintButler():
     """
@@ -48,7 +49,10 @@ class PeppermintButler():
             jql = "project = "+ project +" and assignee=currentUser() and status in ("+ statuses_str +")"
             tasks_list = []
             for task in self.searchIssues(jql)['issues']:
-                tasks_list.append(task['key'])
+                task_color = task['fields']['status']['statusCategory']['colorName']
+                if task_color not in COLORS.keys():
+                    task_color = 'white'
+                tasks_list.append(colored(task['key'], task_color, attrs=['bold']))
 
             groups_list[group] = tasks_list
             if len(tasks_list) > rows_qnt:
@@ -63,6 +67,8 @@ class PeppermintButler():
                 rows.append(task)
                 r += 1
             
+            group = colored(group, 'white', attrs=['bold'])
+
             table.insert_column(index, group, rows)
 
         print(table)
