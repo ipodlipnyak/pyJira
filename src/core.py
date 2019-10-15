@@ -170,7 +170,6 @@ class Connector:
             return
 
         if payload:
-            #r = requests.get(url, cookies=cookies, params = urlencode(params))
             r = requests.get(url, cookies=cookies, params=payload)
         else:
             r = requests.get(url, cookies=cookies)
