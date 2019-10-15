@@ -66,7 +66,7 @@ class PeppermintButler():
                 task = tasks_list[r] if r < len(tasks_list) else ''
                 rows.append(task)
                 r += 1
-            
+           
             group = colored(group, 'white', attrs=['bold'])
 
             table.insert_column(index, group, rows)

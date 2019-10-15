@@ -2,7 +2,7 @@ import json
 from pygments import highlight
 from pygments.lexers import JsonLexer
 from pygments.formatters import TerminalFormatter
-from src.core import Connector, prettyPrint
+from src.core import Connector, prettyPrint, logInit
 from src.model import Issue, PeppermintButler
 from PyInquirer import prompt
 
@@ -31,6 +31,7 @@ class JiraCon(Connector):
         return self.get('rest/api/2/issuetype')
 
 if __name__ == "__main__" :
+    logInit()
     jira = JiraCon()
 
     #i = Issue(jira, 'RND-8817')

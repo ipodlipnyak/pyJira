@@ -1,6 +1,9 @@
 import requests
 import json
 import re
+import time
+import logging
+import logging.handlers
 from pygments import highlight
 from pygments.lexers import JsonLexer
 from pygments.formatters import TerminalFormatter
@@ -8,6 +11,18 @@ from PyInquirer import prompt
 from os.path import isfile
 from urllib.parse import urlencode, urlparse
 from datetime import timedelta
+
+def logInit():
+    log_handler = logging.handlers.WatchedFileHandler('log.txt')
+    formatter = logging.Formatter(
+        '%(asctime)s pyJira [%(process)d]: %(message)s',
+        '%b %d %H:%M:%S')
+    #formatter.converter = time.gmtime  # if you want UTC time
+    log_handler.setFormatter(formatter)
+    logger = logging.getLogger()
+    logger.addHandler(log_handler)
+    logger.setLevel(logging.DEBUG)
+
 
 def prettyPrint(parsed_json):
     json_str = json.dumps(parsed_json, indent=4, sort_keys=True, ensure_ascii=False)
@@ -93,10 +108,13 @@ class Config:
         config_f.close()
 
 class Connector:
+    connected = False
     def __init__(self):
         self.config = Config()
         if not self.checkConn():
             self.auth()
+
+        self.connected = True
 
     def auth(self):
         payload = {
@@ -136,20 +154,7 @@ class Connector:
         else:
             r = requests.post(url, headers=headers, data=data)
 
-        try:
-            result = None if r.status_code == 204 else json.loads(r.text)
-        except ValueError:
-            print(r)
-            print(r.text)
-            return
-
-        if r.status_code >= 400:
-            print(r)
-            prettyPrint(r.text)
-            if payload:
-                prettyPrint(payload)
-
-        return result
+        return self.processResult(r, payload)
 
     def get(self, query, payload = False, debug = False):
         url = self.config.get('host') + query
@@ -170,6 +175,9 @@ class Connector:
         else:
             r = requests.get(url, cookies=cookies)
 
+        return self.processResult(r, payload)
+
+    def processResult(self, r, payload):
         try:
             result = None if r.status_code == 204 else json.loads(r.text)
         except ValueError:
@@ -177,10 +185,13 @@ class Connector:
             print(r.text)
             return
         
-        if r.status_code >= 400:
+        if r.status_code >= 400 and self.connected:
             print(r)
             prettyPrint(r.text)
             if payload:
                 prettyPrint(payload)
+
+        if r.status_code == 401:
+            logging.info(r.text)
 
         return result
